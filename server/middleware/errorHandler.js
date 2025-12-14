@@ -44,4 +44,30 @@ const errorHandler = (err, req, res, next) => {
         err.message = `Invalid input: ${error.json('. ')}`;
         error.statusCode = 400;
     }
-}
+    //MongoDB vvalidation error
+    if (err.name === 'ValidationError') {
+        const error = Object.values(err.error).map(el => el.message);
+        err.message = `Invalid input: ${error.json('. ')}`;
+        err.statusCode = 400;
+    }
+
+    //JWT error
+    if (err.name === 'JsonWebTokenError') {
+        err.message = 'Invalid token. please log in again.';
+        err.statusCode = 401;
+    }
+
+    if (err.name === 'TokenexpiredError') {
+        err.message = 'Your taken has expired. please log in again.';
+        err.statusCode = 401;
+    }
+
+    // Send error response
+    res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+};
+
+module.exports = { errorHandler, notFound, ApiError };
