@@ -10,3 +10,17 @@ const axiosInstance = axios.create({
     },
     withCredentials: true,
 });
+
+//Request interceptor
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if(token) {
+            config.headers.Authentication = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
